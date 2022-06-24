@@ -1,0 +1,41 @@
+{
+    "hotel1" : {
+            "Room1" : { 
+                "check-in" : "date object",
+                "check-out" : "",
+                "type" : "Gold",
+                "description" : "Good!",
+                "price" : 5000,
+                "picture" : "",
+                "Note" : ""
+            },
+
+            "Room2" : { 
+                "check-in" : "",
+                "check-out" : "",
+                "type" : "Gold",
+                "description" : "Good!",
+                "price" : 5000,
+                "picture" : "",
+                "Note" : ""
+            },
+            "Room3" : {
+                "check-in" : "",
+                "check-out" : "", 
+                "type" : "Gold",
+                "description" : "Good!",
+                "price" : 5000,
+                "picture" : "",
+                "Note" : ""
+            },
+            "Room4" : { 
+                "check-in" : "",
+                "check-out" : "",
+                "type" : "Gold",
+                "description" : "Good!",
+                "price" : 5000,
+                "picture" : "",
+                "Note" : ""
+            }
+    }
+}
