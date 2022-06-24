@@ -1,0 +1,2 @@
+https://pythonprogramming.altervista.org/tkinter-how-to-hide-and-show-frames/amp/
+https://realpython.com/python-gui-tkinter/#using-bind
