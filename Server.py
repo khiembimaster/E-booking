@@ -3,19 +3,6 @@ from threading import Thread
 import re
 import json
 
-clients = {}
-addresses = {}
-users = {}
-
-HOST = ''
-PORT = 33000
-BUFSIZE = 1024
-ADDR = (HOST,BUFSIZE)
-
-SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(ADDR)
-
-
 
 def accept_incoming_connections():
     while True:
@@ -91,7 +78,17 @@ def Register(client):
     else:
         client.send(bytes("Register Denied! - Invalid username" ,"utf8"))
 
+clients = {}
+addresses = {}
+users = {}
 
+HOST = ''
+PORT = 33000
+BUFSIZE = 1024
+ADDR = (HOST,PORT)
+
+SERVER = socket(AF_INET, SOCK_STREAM)
+SERVER.bind(ADDR)
 
 if __name__ == "__main__":
     SERVER.listen(5)
