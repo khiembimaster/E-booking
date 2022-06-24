@@ -6,9 +6,10 @@ import tkinter
 def Main_menu():
     """Login or Register"""
     msg = client_socket.recv(BUFSIZE).decode("utf8")
+    label_greeting_from_server = tkinter.Label(master=frame_start, text = msg)
+    label_greeting_from_server.pack()
     frame_login.pack()
     frame_register.pack()
-    frame_start.destroy()
 
 def Login():
     """Login"""
