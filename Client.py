@@ -2,13 +2,13 @@ from socket import *
 from threading import Thread
 import tkinter
 import json
+import sys
 
 
 def Main_menu():
     """Login or Register"""
     msg = client_socket.recv(BUFSIZE).decode("utf8")
-    label_greeting.destroy()
-    frame_start.pack_forget()
+    frame_start.pack_forget() 
     label_greeting_from_server = tkinter.Label(master=frame_main_menu, text = msg)
     label_greeting_from_server.pack()
     frame_main_menu.pack()
@@ -23,6 +23,7 @@ def Login():
     print(msg)
     #Generate login information from user
     log_info = {}
+    sys.stdout.flush()
     log_info["name"] = input("Enter username: ")
     log_info["password"] = input("Enter password: ")
     #dump log_info into string and send it to server 
@@ -45,6 +46,7 @@ def Register():
     print(msg)
     #Generate login information from user
     reg_info = {}
+    sys.stdout.flush()
     reg_info["name"] = input("Enter username: ")
     reg_info["password"] = input("Enter password: ")
     reg_info["ID"] = input("Enter Bank Account: ")
@@ -62,14 +64,15 @@ def Register():
 
 
 
-#Inter-face
+"""Inter-face"""
 window = tkinter.Tk()
 window.title("E-booking")
+#Intro frame
 frame_start = tkinter.Frame()
 label_greeting = tkinter.Label(master=frame_start, text = "Please connect to server...")
 label_greeting.pack()
 frame_start.pack()
-
+#Main menu frame
 frame_main_menu = tkinter.Frame()
 button_login = tkinter.Button(master=frame_main_menu, text = "Login", command=Login)
 button_login.pack()
@@ -77,9 +80,7 @@ button_register = tkinter.Button(master=frame_main_menu, text = "Register", comm
 button_register.pack()
 
 
-
-
-#Socket
+"""Socket"""
 HOST = input('Enter host: ')
 PORT = input('Enter port: ')
 if not PORT:

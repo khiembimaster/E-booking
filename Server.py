@@ -1,8 +1,10 @@
 from socket import *
+import threading
 from threading import Thread
 import re
 import json
 
+lock = threading.Lock()
 
 def accept_incoming_connections():
     while True:
@@ -32,8 +34,10 @@ def Login(client):
     msg = client.recv(BUFSIZE).decode("utf8")
     log_info = json.loads(msg)
     #Load the database to check
+    lock.acquire()
     with open('users.json','r') as inputFile:
         users = json.load(inputFile)
+    lock.release()
     #Check if user exist and password is correct
     if str(log_info['name']) in users.keys():
         print("Hi %s\r\n" % log_info["name"])
@@ -57,8 +61,10 @@ def Register(client):
     #Get the dictionary as bytes, decode it and loads the dictionary
     reg_info = json.loads(client.recv(BUFSIZE).decode("utf8"))
     #Load the database to check
+    lock.acquire()
     with open('users.json','r') as inputFile:
         users = json.load(inputFile)
+    lock.release()
     """Check if information is valid"""
     #Check username
     if (len(reg_info["name"]) >= 5) and bool(re.match('^[a-z0-9]*$',reg_info["name"])):
@@ -70,8 +76,10 @@ def Register(client):
                 users[reg_info["name"]] = {"password":reg_info["password"],
                                            "ID" : reg_info["ID"]} 
                 #Rewrite all data
+                lock.acquire()
                 with open('users.json','w') as inputFile:
                     json.dump(users,inputFile)
+                lock.release()
                 client.send(bytes("Register Success!","utf8"))
 
             else :
