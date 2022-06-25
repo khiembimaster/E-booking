@@ -10,12 +10,8 @@ def accept_incoming_connections():
         client.send(bytes("Welcome! Please Enter your choice...","utf8"))
         addresses[client] = client_address
         Thread(target=handle_client,args=(client,)).start()
-
+  
 def handle_client(client):
-    options = {
-        "Logg" : Login(client), 
-        "Resgiter" : Register(client),
-        }
     while True:
         option = client.recv(BUFSIZE).decode("utf8")
         print("%sing" % option)
@@ -23,32 +19,36 @@ def handle_client(client):
             client.close()
             del clients[client]
             break
-        else: 
-            options[option]
+        elif option == "Logg": 
+            Login(client)
+        elif option == "Register":
+            Register(client)
 
 def Login(client):
     print("Logging in...")
     #Tell client to send a dictionary containing name and password
     client.send(bytes("LOGIN","utf8"))
     #Get the dictionary as bytes, decode it and loads the dictionary
-    log_info = json.loads(client.recv(BUFSIZE).decode("utf8"))
+    msg = client.recv(BUFSIZE).decode("utf8")
+    log_info = json.loads(msg)
     #Load the database to check
     with open('users.json','r') as inputFile:
         users = json.load(inputFile)
     #Check if user exist and password is correct
-    if log_info["name"] in users.key():
+    if str(log_info['name']) in users.keys():
         print("Hi %s\r\n" % log_info["name"])
-        if log_info["password"] == users[log_info["name"]]:
+    
+        if str(log_info['password']) == str(users[log_info["name"]]["password"]):
             #Login success
-            print("%s joined!"%addresses[client])
+            print("%s joined!"%str(addresses[client]))
             client.send(bytes("Login success!","utf8"))
         else :
-            print("%s's accesssion denied!"%addresses[client])
+            print("%s's accesssion denied!"%str(addresses[client]))
             client.send(bytes("Wrong password!","utf8")) 
     else :
-        print("%s's accesssion denied!"%addresses[client])
+        print("%s's accesssion denied!"%str(addresses[client]))
         client.send(bytes("User name does not exist!","utf8"))
-
+    return
 
 def Register(client):    
     print("Registering...")
@@ -56,6 +56,9 @@ def Register(client):
     client.send(bytes("REGISTER","utf8"))
     #Get the dictionary as bytes, decode it and loads the dictionary
     reg_info = json.loads(client.recv(BUFSIZE).decode("utf8"))
+    #Load the database to check
+    with open('users.json','r') as inputFile:
+        users = json.load(inputFile)
     """Check if information is valid"""
     #Check username
     if (len(reg_info["name"]) >= 5) and bool(re.match('^[a-z0-9]*$',reg_info["name"])):
