@@ -12,29 +12,6 @@ def Main_menu():
     label_greeting_from_server = tkinter.Label(master=frame_main_menu, text = msg)
     label_greeting_from_server.pack()
     frame_main_menu.pack()
-        
-def Login():
-    """Login"""
-    frame_main_menu.pack_forget()
-    #require Login modul
-    client_socket.send(bytes("Logg","utf8"))
-    #Get confirm
-    msg = (client_socket.recv(BUFSIZE)).decode("utf8")
-    print(msg)
-    #Generate login information from user
-    log_info = {}
-    sys.stdout.flush()
-    log_info["name"] = input("Enter username: ")
-    log_info["password"] = input("Enter password: ")
-    #dump log_info into string and send it to server 
-    msg = json.dumps(log_info)
-    client_socket.send(bytes(msg,"utf8"))
-    #Wait for server acception
-    msg = client_socket.recv(BUFSIZE).decode("utf8")
-    #handle msg
-    print(msg)
-    if msg != "Login success!":
-        frame_main_menu.pack()
 
 def Register():
     """Register"""
@@ -61,6 +38,72 @@ def Register():
         Login()
     else :
         frame_main_menu.pack()
+        
+def Login():
+    """Login"""
+    frame_main_menu.pack_forget()
+    #require Login modul
+    client_socket.send(bytes("Logg","utf8"))
+    #Get confirm
+    msg = (client_socket.recv(BUFSIZE)).decode("utf8")
+    print(msg)
+    #Generate login information from user
+    log_info = {}
+    sys.stdout.flush()
+    log_info["name"] = input("Enter username: ")
+    log_info["password"] = input("Enter password: ")
+    #dump log_info into string and send it to server 
+    msg = json.dumps(log_info)
+    client_socket.send(bytes(msg,"utf8"))
+    #Wait for server acception
+    msg = client_socket.recv(BUFSIZE).decode("utf8")
+    #handle msg
+    print(msg)
+    if msg != "Login success!":
+        frame_main_menu.pack()
+    else : #Login success
+        Get_option()
+
+def Get_option():
+    #Get option-list
+    msg = client_socket.recv(BUFSIZE).decode("utf8")
+    option_list = json.loads(msg)
+    #User choose option
+    option = int(input("Enter your option: ")) # a number 
+    client_socket.send(bytes(option_list[option],"utf8"))
+    #Go to appropriate function
+    if option == 0:
+        Show_hotel_list()
+    elif option == 1:
+        Search()
+    elif option == 2:
+        Reservation()
+        
+
+def Show_hotel_list():
+    #Get the list
+    fragments = []
+    while True:
+        chunk = ""
+        try:
+            client_socket.setblocking(False)
+            chunk = client_socket.recv(BUFSIZE).decode()
+        except:
+            break
+        fragments.append(chunk)
+
+    hotels_list = "".join(fragments)
+    #Now Show the list
+    print(hotels_list)
+
+
+def Search():
+    print("foo")
+
+def Reservation():
+    print("foo")
+
+
 
 
 

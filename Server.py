@@ -26,33 +26,6 @@ def handle_client(client):
         elif option == "Register":
             Register(client)
 
-def Login(client):
-    print("Logging in...")
-    #Tell client to send a dictionary containing name and password
-    client.send(bytes("LOGIN","utf8"))
-    #Get the dictionary as bytes, decode it and loads the dictionary
-    msg = client.recv(BUFSIZE).decode("utf8")
-    log_info = json.loads(msg)
-    #Load the database to check
-    lock.acquire()
-    with open('users.json','r') as inputFile:
-        users = json.load(inputFile)
-    lock.release()
-    #Check if user exist and password is correct
-    if str(log_info['name']) in users.keys():
-        print("Hi %s\r\n" % log_info["name"])
-    
-        if str(log_info['password']) == str(users[log_info["name"]]["password"]):
-            #Login success
-            print("%s joined!"%str(addresses[client]))
-            client.send(bytes("Login success!","utf8"))
-        else :
-            print("%s's accesssion denied!"%str(addresses[client]))
-            client.send(bytes("Wrong password!","utf8")) 
-    else :
-        print("%s's accesssion denied!"%str(addresses[client]))
-        client.send(bytes("User name does not exist!","utf8"))
-    return
 
 def Register(client):    
     print("Registering...")
@@ -88,6 +61,73 @@ def Register(client):
             client.send(bytes("Register Denied! - Invalid password","utf8"))
     else:
         client.send(bytes("Register Denied! - Invalid username" ,"utf8"))
+
+
+def Login(client):
+    print("Logging in...")
+    #Tell client to send a dictionary containing name and password
+    client.send(bytes("LOGIN","utf8"))
+    #Get the dictionary as bytes, decode it and loads the dictionary
+    msg = client.recv(BUFSIZE).decode("utf8")
+    log_info = json.loads(msg)
+    #Load the database to check
+    lock.acquire()
+    with open('users.json','r') as inputFile:
+        users = json.load(inputFile)
+    lock.release()
+    #Check if user exist and password is correct
+    if str(log_info['name']) in users.keys():
+        print("Hi %s\r\n" % log_info["name"])
+    
+        if str(log_info['password']) == str(users[log_info["name"]]["password"]):
+            #Login success
+            print("%s joined!"%str(addresses[client]))
+            client.send(bytes("Login success!","utf8"))
+            Option_list(client)
+        else :
+            print("%s's accesssion denied!"%str(addresses[client]))
+            client.send(bytes("Wrong password!","utf8")) 
+    else :
+        print("%s's accesssion denied!"%str(addresses[client]))
+        client.send(bytes("User name does not exist!","utf8"))
+    return
+
+def Option_list(client):
+    """Send option and receive choice form client"""
+    option_list = ["Hotel_list","Search", "Reservation"]
+    msg = json.dumps(option_list)
+    client.send(bytes(msg,"utf8"))
+
+    while True:
+        option = client.recv(BUFSIZE).decode("utf8")
+        print("%sing" % option)
+    
+        if option == option_list[0]:
+            Send_hotel_list(client)
+        elif option == option_list[1]:
+            #Call Search modul
+            Search()
+        elif option == option_list[2]:
+            Reservation()
+
+def Send_hotel_list(client):
+    print("readFile")
+    with open("hotels.json","rb") as inputFile:
+        msg = inputFile.read()
+        client.sendall(msg)
+        # client.send(bytes("FNished"))
+    
+    
+
+def Search():
+    print("foo")
+
+def Reservation():
+    print("foo")
+
+
+
+    
 
 clients = {}
 addresses = {}
