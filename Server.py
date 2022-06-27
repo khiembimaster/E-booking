@@ -115,7 +115,6 @@ def Send_hotel_list(client):
     with open("hotels.json","rb") as inputFile:
         msg = inputFile.read()
         client.sendall(msg)
-        # client.send(bytes("FNished"))
     
     
 

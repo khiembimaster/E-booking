@@ -67,17 +67,18 @@ def Login():
 def Get_option():
     #Get option-list
     msg = client_socket.recv(BUFSIZE).decode("utf8")
-    option_list = json.loads(msg)
-    #User choose option
-    option = int(input("Enter your option: ")) # a number 
-    client_socket.send(bytes(option_list[option],"utf8"))
-    #Go to appropriate function
-    if option == 0:
-        Show_hotel_list()
-    elif option == 1:
-        Search()
-    elif option == 2:
-        Reservation()
+    while True:
+        option_list = json.loads(msg)
+        #User choose option
+        option = int(input("Enter your option: ")) # a number 
+        client_socket.send(bytes(option_list[option],"utf8"))
+        #Go to appropriate function
+        if option == 0:
+            Show_hotel_list()
+        elif option == 1:
+            Search()
+        elif option == 2:
+            Reservation()
         
 
 def Show_hotel_list():
@@ -86,15 +87,21 @@ def Show_hotel_list():
     while True:
         chunk = ""
         try:
-            client_socket.setblocking(False)
+            client_socket.settimeout(1.0)
             chunk = client_socket.recv(BUFSIZE).decode()
+            client_socket.settimeout(None)
         except:
             break
         fragments.append(chunk)
 
-    hotels_list = "".join(fragments)
+    hotels_list_str = ''.join(fragments)
+    hotels_list = json.loads(hotels_list_str)
     #Now Show the list
-    print(hotels_list)
+    print("Printing hotel list\r\n")
+    if hotels_list:
+        print(hotels_list)
+    else :
+        Show_hotel_list()
 
 
 def Search():
