@@ -109,13 +109,16 @@ def Option_list(client):
             Search()
         elif option == option_list[2]:
             Reservation()
+        else :
+            break
 
 def Send_hotel_list(client):
     print("readFile")
+    lock.acquire()
     with open("hotels.json","rb") as inputFile:
         msg = inputFile.read()
         client.sendall(msg)
-    
+    lock.release()
     
 
 def Search():

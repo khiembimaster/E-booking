@@ -71,7 +71,10 @@ def Get_option():
         option_list = json.loads(msg)
         #User choose option
         option = int(input("Enter your option: ")) # a number 
-        client_socket.send(bytes(option_list[option],"utf8"))
+        if option < len(option_list):
+            client_socket.send(bytes(option_list[option],"utf8"))
+        else :
+            client_socket.send(bytes("quit","utf8"))
         #Go to appropriate function
         if option == 0:
             Show_hotel_list()
@@ -79,7 +82,9 @@ def Get_option():
             Search()
         elif option == 2:
             Reservation()
-        
+        else :
+            break
+    frame_main_menu.pack()
 
 def Show_hotel_list():
     #Get the list
@@ -101,7 +106,7 @@ def Show_hotel_list():
     if hotels_list:
         print(hotels_list)
     else :
-        Show_hotel_list()
+        print("Fail")
 
 
 def Search():
