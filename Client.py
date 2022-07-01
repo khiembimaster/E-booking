@@ -41,28 +41,51 @@ def Register():
         
 def Login():
     """Login"""
+    def clicked():
+        name=e1.get()
+        password=e2.get()
+        #require Login modul
+        client_socket.send(bytes("Logg","utf8"))
+        #Get confirm
+        msg = (client_socket.recv(BUFSIZE)).decode("utf8")
+        print(msg)
+        #Generate login information from user
+        log_info = {}
+        sys.stdout.flush()
+        log_info["name"] = name
+        log_info["password"] = password
+        #dump log_info into string and send it to server 
+        msg = json.dumps(log_info)
+        client_socket.send(bytes(msg,"utf8"))
+        #Wait for server acception
+        msg = client_socket.recv(BUFSIZE).decode("utf8")
+        #handle msg
+        print(msg)
+        if msg != "Login success!":
+            frame_main_menu.pack()
+        else : #Login success
+            Get_option()
+        frame_login.pack_forget()
+    
+
     frame_main_menu.pack_forget()
-    #require Login modul
-    client_socket.send(bytes("Logg","utf8"))
-    #Get confirm
-    msg = (client_socket.recv(BUFSIZE)).decode("utf8")
-    print(msg)
-    #Generate login information from user
-    log_info = {}
-    sys.stdout.flush()
-    log_info["name"] = input("Enter username: ")
-    log_info["password"] = input("Enter password: ")
-    #dump log_info into string and send it to server 
-    msg = json.dumps(log_info)
-    client_socket.send(bytes(msg,"utf8"))
-    #Wait for server acception
-    msg = client_socket.recv(BUFSIZE).decode("utf8")
-    #handle msg
-    print(msg)
-    if msg != "Login success!":
-        frame_main_menu.pack()
-    else : #Login success
-        Get_option()
+    frame_login=tkinter.Frame()
+    frame_login.pack()
+    name = tkinter.StringVar()
+    password = tkinter.StringVar()
+    label_login_name=tkinter.Label(frame_login,text="User's name:")
+    label_login_name.grid(row=0,column=0)
+    e1=tkinter.Entry(frame_login,textvariable=name,width=100)
+    e1.grid(row=0,column=1)
+
+    label_login_password=tkinter.Label(frame_login,text="Password:")
+    label_login_password.grid(row=1,column=0)
+    e2=tkinter.Entry(frame_login,textvariable=password,width=100)
+    e2.grid(row=1,column=1)
+
+    button_login2=tkinter.Button(frame_login,text="Login",command=clicked)
+    button_login2.grid(row=2,column=2)   
+
 
 def Get_option():
     #Get option-list
@@ -127,6 +150,7 @@ frame_start = tkinter.Frame()
 label_greeting = tkinter.Label(master=frame_start, text = "Please connect to server...")
 label_greeting.pack()
 frame_start.pack()
+
 #Main menu frame
 frame_main_menu = tkinter.Frame()
 button_login = tkinter.Button(master=frame_main_menu, text = "Login", command=Login)
