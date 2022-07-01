@@ -1,8 +1,13 @@
 from socket import *
+from this import d
 import threading
 from threading import Thread
 import re
 import json
+import datetime
+from zoneinfo import available_timezones
+
+from matplotlib.style import available
 
 lock = threading.Lock()
 
@@ -120,9 +125,35 @@ def Send_hotel_list(client):
         client.sendall(msg)
     lock.release()
     
+def Find_Available_Room(search_info):
+    #Load hotel_list
+    with open("hotels.json","r") as inputFile:
+        hotel_list = json.load(inputFile)
+    #Get hotel
+    hotel = hotel_list[search_info["hotel_name"]]
+    #Find and store available rooms 
+    available_rooms = []
+    for room in hotel:
+        #Check for colision
+        if search_info["check-in"] > room["check-in"] and search_info["check-in"] < room["check-out"]:
+            continue
+        elif search_info["check-out"] > room["check-in"] and search_info["check-out"] < room["check-out"]:
+            continue
+        #No colision
+        else :
+            available_rooms.append(room)
+    #Return list
+    return available_rooms
 
-def Search():
-    print("foo")
+def Search(client):
+    #Get search info
+    msg = client.recv(BUFSIZE).decode("utf8")
+    search_info = json.loads(msg)
+    #Find available rooms
+    available_rooms = Find_Available_Room(search_info)
+    #Send available rooms list to server
+    available_rooms_str = json.dumps(available_rooms)
+    client.send(bytes(available_rooms_str,"utf8"))
 
 def Reservation():
     print("foo")

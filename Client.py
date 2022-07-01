@@ -1,8 +1,11 @@
+from pydoc import cli
 from socket import *
 from threading import Thread
 import tkinter
 import json
 import sys
+
+from jmespath import search
 
 
 def Main_menu():
@@ -133,7 +136,15 @@ def Show_hotel_list():
 
 
 def Search():
-    print("foo")
+    search_info = {}
+    search_info["hotel_name"] = input("Enter hotel name: ")
+    search_info["check-in"] = input("Enter check-in date: ")
+    search_info["check-out"] = input("Enter check-out date: ")
+    search_info_str = json.dumps(search_info)
+    client_socket.send(bytes(search_info_str,"utf8"))
+    available_rooms_str = client_socket.recv(BUFSIZE).decode("utf8")
+    available_rooms = json.loads(available_rooms_str)
+    print(available_rooms)
 
 def Reservation():
     print("foo")
