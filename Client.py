@@ -5,7 +5,6 @@ import tkinter
 import json
 import sys
 
-from jmespath import search
 
 
 def Main_menu():
