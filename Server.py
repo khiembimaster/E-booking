@@ -151,9 +151,13 @@ def Search(client):
     search_info = json.loads(msg)
     #Find available rooms
     available_rooms = Find_Available_Room(search_info)
+    #Load image to dictionary
+    for room in available_rooms:
+        with open(room["image"], "rb") as room_image:
+            room["image"] = room_image
     #Send available rooms list to server
     available_rooms_str = json.dumps(available_rooms)
-    client.send(bytes(available_rooms_str,"utf8"))
+    client.sendall(bytes(available_rooms_str))
 
 def Reservation():
     print("foo")

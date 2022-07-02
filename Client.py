@@ -135,15 +135,31 @@ def Show_hotel_list():
 
 
 def Search():
+    #Get information
     search_info = {}
     search_info["hotel_name"] = input("Enter hotel name: ")
     search_info["check-in"] = input("Enter check-in date: ")
     search_info["check-out"] = input("Enter check-out date: ")
+    #Send information
     search_info_str = json.dumps(search_info)
     client_socket.send(bytes(search_info_str,"utf8"))
-    available_rooms_str = client_socket.recv(BUFSIZE).decode("utf8")
+
+    #Get the list
+    fragments = []
+    while True:
+        chunk = ""
+        try:
+            client_socket.settimeout(1.0)
+            chunk = client_socket.recv(BUFSIZE).decode()
+            client_socket.settimeout(None)
+        except:
+            break
+        fragments.append(chunk)
+
+    available_rooms_str = ''.join(fragments)
     available_rooms = json.loads(available_rooms_str)
     print(available_rooms)
+    #available_rooms["image"]
 
 def Reservation():
     print("foo")

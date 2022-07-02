@@ -1,6 +1,7 @@
 {
     "hotel1" : [
             { 
+                "name" : "Room1",
                 "reservation-date": [],
                 "check-in" : [2022,7,1],
                 "check-out" : [2022,7,1],
@@ -8,10 +9,12 @@
                 "description" : "Good!",
                 "price" : 5000,
                 "picture" : "",
-                "Note" : "the client who booked this room"
+                "Note" : "the client who booked this room",
+                "image" : "room1.jpg"
             },
 
             { 
+                "name" : "Room2",
                 "reservation-date": [],
                 "check-in" : [],
                 "check-out" : [],
@@ -19,10 +22,12 @@
                 "description" : "Good!",
                 "price" : 5000,
                 "picture" : "",
-                "Note" : ""
+                "Note" : "",
+                "image" : "room2.jpg"
             },
             
             {
+                "name" : "Room3",
                 "reservation-date": [],
                 "check-in" : [],
                 "check-out" : [], 
@@ -30,18 +35,8 @@
                 "description" : "Good!",
                 "price" : 5000,
                 "picture" : "",
-                "Note" : ""
-            },
-            
-            { 
-                "reservation-date": [],
-                "check-in" : [],
-                "check-out" : [],
-                "type" : "Gold",
-                "description" : "Good!",
-                "price" : 5000,
-                "picture" : "",
-                "Note" : ""
+                "Note" : "",
+                "image" : "room3.jpg"
             }
         ]
 }
