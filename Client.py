@@ -1,4 +1,3 @@
-from pydoc import cli
 from socket import *
 from threading import Thread
 import tkinter

@@ -1,13 +1,9 @@
 from socket import *
-from this import d
 import threading
 from threading import Thread
 import re
 import json
 import datetime
-from zoneinfo import available_timezones
-
-from matplotlib.style import available
 
 lock = threading.Lock()
 
@@ -119,11 +115,15 @@ def Option_list(client):
 
 def Send_hotel_list(client):
     print("readFile")
+    hotel_list = []
     lock.acquire()
-    with open("hotels.json","rb") as inputFile:
-        msg = inputFile.read()
-        client.sendall(msg)
+    with open("hotels.json","r") as inputFile:
+        msg = json.load(inputFile)
+        for key in msg.keys():
+            hotel_list.append(key)
     lock.release()
+    msg = json.dumps(hotel_list)
+    client.sendall(bytes(msg,"utf8"))
     
 def Find_Available_Room(search_info):
     #Load hotel_list
