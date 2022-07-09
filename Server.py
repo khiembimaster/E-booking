@@ -1,10 +1,14 @@
 from audioop import add
+from multiprocessing.connection import Client
 from socket import *
 import threading
 from threading import Thread
 import re
 import json
 import datetime
+import time
+from sys import getsizeof
+import base64
 
 lock = threading.Lock()
 
@@ -116,7 +120,7 @@ def Option_list(client):
 
 def Send_hotel_list(client):
     print("readFile")
-    client.send(bytes("okie","utf8"))
+    # client.send(bytes("okie","utf8"))
     hotel_list = {}
     lock.acquire()
     with open("hotels.json","r") as inputFile:
@@ -126,9 +130,11 @@ def Send_hotel_list(client):
     lock.release()
     msg = json.dumps(hotel_list)
     client.sendall(bytes(msg,"utf8"))
-    client.recv(BUFSIZE)
+    # client.recv(BUFSIZE)
     
 def Find_Available_Room(search_info):
+    # search_info["check-in"] = time.mktime(tuple(search_info["check-in"]))
+    # search_info["check-out"] = time.mktime(tuple(search_info["check-out"]))
     #Load hotel_list
     with open("hotels.json","r") as inputFile:
         hotel_list = json.load(inputFile)
@@ -137,31 +143,43 @@ def Find_Available_Room(search_info):
     #Find and store available rooms 
     available_rooms = []
     for room in hotel:
-        #Check for colision
-        if search_info["check-in"] > room["check-in"] and search_info["check-in"] < room["check-out"]:
-            continue
-        elif search_info["check-out"] > room["check-in"] and search_info["check-out"] < room["check-out"]:
-            continue
-        #No colision
-        else :
-            available_rooms.append(room)
+        # #Check for colision
+        # checkin = time.mktime(tuple(room["check-in"]))
+        # checkout = time.mktime(tuple(room["check-out"]))
+        # if search_info["check-in"] > checkin and search_info["check-in"] < checkin:
+        #     continue
+        # elif search_info["check-out"] > checkout and search_info["check-out"] < checkout:
+        #     continue
+        # #No colision
+        # else :
+        available_rooms.append(room)
     #Return list
     return available_rooms
 
 def Search(client):
     #Get search info
-    Send_hotel_list(client)
+    #Handshake
+    client.send(b"ok")
     msg = client.recv(BUFSIZE).decode("utf8")
-    search_info = json.loads(msg)
-    #Find available rooms
-    available_rooms = Find_Available_Room(search_info)
-    #Load image to dictionary
-    for room in available_rooms:
-        with open(room["image"], "rb") as room_image:
-            room["image"] = room_image
-    #Send available rooms list to server
-    available_rooms_str = json.dumps(available_rooms)
-    client.sendall(bytes(available_rooms_str))
+    #Start sending list
+    if(msg) : Send_hotel_list(client)
+    while True:
+        msg = client.recv(BUFSIZE).decode("utf8")
+        if(msg == "quit"):
+            break
+        search_info = json.loads(msg)
+        #Find available rooms
+        available_rooms = Find_Available_Room(search_info)
+        #Load image to dictionary
+        for room in available_rooms:
+            with open(room["image"], "rb") as room_image:
+                bOject = base64.b64encode(room_image.read())
+                room["image"] = bOject.decode("utf8") 
+                # print(room["image"])
+        #Send available rooms list to server
+        available_rooms_str = json.dumps(available_rooms)
+        msg = client.recv(BUFSIZE)
+        if(msg): client.sendall(bytes(available_rooms_str,"utf8"))
 
 def Reservation():
     print("foo")

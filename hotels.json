@@ -3,8 +3,8 @@
             { 
                 "name" : "Room1",
                 "reservation-date": [],
-                "check-in" : [2022,7,1],
-                "check-out" : [2022,7,1],
+                "check-in" : [2022,7,1,0,0,0,0,0,0],
+                "check-out" : [2022,8,1,0,0,0,0,0,0],
                 "type" : "Gold",
                 "description" : "Good!",
                 "price" : 5000,
@@ -43,8 +43,8 @@
             { 
                 "name" : "Room1",
                 "reservation-date": [],
-                "check-in" : [2022,7,1],
-                "check-out" : [2022,7,1],
+                "check-in" : [2022,7,1,0,0,0,0,0,0],
+                "check-out" : [2022,8,1,0,0,0,0,0,0],
                 "type" : "Gold",
                 "description" : "Good!",
                 "price" : 5000,

@@ -1,4 +1,3 @@
-from optparse import Values
 from socket import *
 from threading import Thread
 from tkinter import *
@@ -6,7 +5,7 @@ from tkinter import ttk
 import tkinter
 import json
 import sys
-
+import PIL
 
 
 
@@ -98,7 +97,7 @@ def Login():
         #Wait for server acception
         msg = client_socket.recv(BUFSIZE).decode("utf8")
         #handle msg
-        print(msg)
+        # print(msg)
         if msg != "Login success!":
             frame_main_menu.pack()
         else : #Login success
@@ -137,7 +136,7 @@ def Get_option():
             if option < len(option_list):
                 client_socket.send(bytes(option_list[option],"utf8"))
             else :
-                client_socket.send(bytes("quit","utf8"))
+                client_socket.send(bytes("","utf8"))
             Show_hotel_list()
 
         def option_get_search():
@@ -145,7 +144,7 @@ def Get_option():
             if option < len(option_list):
                 client_socket.send(bytes(option_list[option],"utf8"))
             else :
-                client_socket.send(bytes("quit","utf8"))
+                client_socket.send(bytes("","utf8"))
             Search()
 
         def option_get_reservation():
@@ -153,7 +152,7 @@ def Get_option():
             if option < len(option_list):
                 client_socket.send(bytes(option_list[option],"utf8"))
             else :
-                client_socket.send(bytes("quit","utf8"))
+                client_socket.send(bytes("","utf8"))
             Reservation()
 
 
@@ -273,7 +272,7 @@ def Show_hotel_list():
         frame_get_option.pack()
     button_test=Button(sup_frame,text="Return",command=return_get_option)
     button_test.grid(row=x[0],column=0,sticky=W)
-
+    return
 
 def Search():
     # #Get information
@@ -281,13 +280,15 @@ def Search():
     frame_get_option.pack_forget()
     frame_search=tkinter.Frame()
     frame_search.pack()
+    #Handshake
+    msg = client_socket.recv(BUFSIZE)
+    if(msg): client_socket.send(b"start")
     #Get the list
-    client_socket.recv(BUFSIZE)
     fragments = []
     while True:
         chunk = ""
         try:
-            client_socket.settimeout(2.0)
+            client_socket.settimeout(1.0)
             chunk = client_socket.recv(BUFSIZE).decode("utf8")
             client_socket.settimeout(None)
         except:
@@ -296,7 +297,7 @@ def Search():
 
     hotels_list_str = ''.join(fragments)
     hotels_list = json.loads(hotels_list_str)
-    client_socket.send(bytes("okie","utf8"))
+    # client_socket.send(bytes("okie","utf8"))
 
     hotel_name=tkinter.StringVar()
 
@@ -384,15 +385,32 @@ def Search():
             valid_day=False
 
         if valid_day:
+            for i in range(6):
+                check_in_date.append(0)
+                check_out_date.append(0)
             search_info["check-in"] = check_in_date
             search_info["check-out"] = check_out_date
 
             #Send information
             search_info_str = json.dumps(search_info)
             client_socket.send(bytes(search_info_str,"utf8"))
+            #Get the list
+            client_socket.send(bytes("start","utf8"))
+            fragments = []
+            while True:
+                chunk = ""
+                try:
+                    client_socket.settimeout(1.0)
+                    chunk = client_socket.recv(BUFSIZE).decode("utf8")
+                    client_socket.settimeout(None)
+                except:
+                    break
+                fragments.append(chunk)
             available_rooms_str = ''.join(fragments)
             available_rooms = json.loads(available_rooms_str)
+            
             if available_rooms:
+                    frame_search.pack_forget()
                     frame_show_list=tkinter.Frame(window)
                     mycanvas=Canvas(frame_show_list)
                     mycanvas.pack(side=LEFT, fill= BOTH, expand=1)
@@ -406,9 +424,9 @@ def Search():
                     sup_frame=tkinter.Frame(mycanvas)
 
                     mycanvas.create_window((0,0), window=sup_frame, anchor="nw")
-                    j=0
+            
                     x=[0]
-                    while True:
+                    for j in range(len(available_rooms)):
                         label_hotel_name=tkinter.Label(sup_frame,text=available_rooms[j]["name"])
                         label_hotel_name.grid(row=x, column=0,sticky=tkinter.W)
                         x[0]+=1
@@ -449,10 +467,7 @@ def Search():
                         label_blank=tkinter.Label(sup_frame,text=" ")
                         label_blank.grid(row=x)
                         x[0]+=1
-                        j+=1
-
-                        if j==len(available_rooms[j]):
-                            break   
+                     
             # print(available_rooms)
             # available_rooms["image"]
         else:
@@ -464,6 +479,8 @@ def Search():
     
     # print(available_rooms)
     # available_rooms["image"]
+
+
 
 def Reservation():
     print("foo")
