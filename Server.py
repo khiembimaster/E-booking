@@ -1,3 +1,4 @@
+from audioop import add
 from socket import *
 import threading
 from threading import Thread
@@ -18,9 +19,9 @@ def handle_client(client):
     while True:
         option = client.recv(BUFSIZE).decode("utf8")
         print("%sing" % option)
-        if option == "quit":
+        if option == "":
+            del addresses[client]
             client.close()
-            del clients[client]
             break
         elif option == "Logg": 
             Login(client)
@@ -70,7 +71,7 @@ def Login(client):
     client.send(bytes("LOGIN","utf8"))
     #Get the dictionary as bytes, decode it and loads the dictionary
     msg = client.recv(BUFSIZE).decode("utf8")
-    log_info = json.loads(msg)
+    log_info = json.loads(msg)    
     #Load the database to check
     lock.acquire()
     with open('users.json','r') as inputFile:
@@ -115,12 +116,12 @@ def Option_list(client):
 
 def Send_hotel_list(client):
     print("readFile")
-    hotel_list = []
+    hotel_list = {}
     lock.acquire()
     with open("hotels.json","r") as inputFile:
-        msg = json.load(inputFile)
-        for key in msg.keys():
-            hotel_list.append(key)
+        hotel_list = json.load(inputFile)
+        # for key in msg.keys():
+        #     hotel_list.append(key)
     lock.release()
     msg = json.dumps(hotel_list)
     client.sendall(bytes(msg,"utf8"))
