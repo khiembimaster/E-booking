@@ -424,7 +424,7 @@ def Search():
                     sup_frame=tkinter.Frame(mycanvas)
 
                     mycanvas.create_window((0,0), window=sup_frame, anchor="nw")
-            
+                    frame_show_list.pack(fill=BOTH, expand=1)
                     x=[0]
                     for j in range(len(available_rooms)):
                         label_hotel_name=tkinter.Label(sup_frame,text=available_rooms[j]["name"])
