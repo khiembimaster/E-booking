@@ -1,3 +1,4 @@
+from optparse import Values
 from socket import *
 from threading import Thread
 from tkinter import *
@@ -5,7 +6,7 @@ from tkinter import ttk
 import tkinter
 import json
 import sys
-from tkinter.tix import COLUMN
+
 
 
 
@@ -251,6 +252,10 @@ def Show_hotel_list():
                 label_note=tkinter.Label(sup_frame,text="Note: "+hotels_list[hotel_name[i]][j]["Note"])
                 label_note.grid(row=x,column=0,sticky=tkinter.W)
                 x[0]+=1
+                # image=ImageTk.PhotoImage(file=hotels_list[hotel_name[i]][j]["image"])
+                # label_image=tkinter.Label(sup_frame,text="Image: ",image=image)
+                # label_image.grid(row=x,column=0,sticky=tkinter.W)
+                # x[0]+=1
 
                 label_blank=tkinter.Label(sup_frame,text=" ")
                 label_blank.grid(row=x)
@@ -277,12 +282,13 @@ def Search():
     frame_search=tkinter.Frame()
     frame_search.pack()
     #Get the list
+    client_socket.recv(BUFSIZE)
     fragments = []
     while True:
         chunk = ""
         try:
-            client_socket.settimeout(1.0)
-            chunk = client_socket.recv(BUFSIZE).decode()
+            client_socket.settimeout(2.0)
+            chunk = client_socket.recv(BUFSIZE).decode("utf8")
             client_socket.settimeout(None)
         except:
             break
@@ -290,12 +296,18 @@ def Search():
 
     hotels_list_str = ''.join(fragments)
     hotels_list = json.loads(hotels_list_str)
+    client_socket.send(bytes("okie","utf8"))
 
     hotel_name=tkinter.StringVar()
-    hotel_option=hotels_list.keys()
+
+
+    hotel_option=[]
+    for i in hotels_list.keys():
+        hotel_option.append(i)
+
     hotel_name.set(hotel_option[0])
 
-    drop_menu=tkinter.OptionMenu(frame_search, hotel_name, hotel_option)
+    drop_menu=tkinter.OptionMenu(frame_search, hotel_name, *hotel_option)
     drop_menu.grid(row=0,column=0)
 
     label_check_in=tkinter.Label(frame_search,text="Enter your check-in date (year/month/date):")
@@ -449,10 +461,9 @@ def Search():
 
     button_search=tkinter.Button(frame_search,text="Search",command=Searching)
     button_search.grid(row=3,column=4)
-    available_rooms_str = ''.join(fragments)
-    available_rooms = json.loads(available_rooms_str)
-    print(available_rooms)
-    available_rooms["image"]
+    
+    # print(available_rooms)
+    # available_rooms["image"]
 
 def Reservation():
     print("foo")

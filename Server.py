@@ -108,7 +108,7 @@ def Option_list(client):
             Send_hotel_list(client)
         elif option == option_list[1]:
             #Call Search modul
-            Search()
+            Search(client)
         elif option == option_list[2]:
             Reservation()
         else :
@@ -116,6 +116,7 @@ def Option_list(client):
 
 def Send_hotel_list(client):
     print("readFile")
+    client.send(bytes("okie","utf8"))
     hotel_list = {}
     lock.acquire()
     with open("hotels.json","r") as inputFile:
@@ -125,6 +126,7 @@ def Send_hotel_list(client):
     lock.release()
     msg = json.dumps(hotel_list)
     client.sendall(bytes(msg,"utf8"))
+    client.recv(BUFSIZE)
     
 def Find_Available_Room(search_info):
     #Load hotel_list
@@ -148,6 +150,7 @@ def Find_Available_Room(search_info):
 
 def Search(client):
     #Get search info
+    Send_hotel_list(client)
     msg = client.recv(BUFSIZE).decode("utf8")
     search_info = json.loads(msg)
     #Find available rooms
