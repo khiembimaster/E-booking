@@ -5,7 +5,7 @@ import threading
 from threading import Thread
 import re
 import json
-import datetime
+import calendar
 import time
 from sys import getsizeof
 import base64
@@ -105,7 +105,12 @@ def Option_list(client):
     client.send(bytes(msg,"utf8"))
 
     while True:
-        option = client.recv(BUFSIZE).decode("utf8")
+        try:
+            option = client.recv(BUFSIZE).decode("utf8")
+            if(msg == ""):
+                break
+        except:
+            break
         print("%sing" % option)
     
         if option == option_list[0]:
@@ -133,8 +138,8 @@ def Send_hotel_list(client):
     # client.recv(BUFSIZE)
     
 def Find_Available_Room(search_info):
-    # search_info["check-in"] = time.mktime(tuple(search_info["check-in"]))
-    # search_info["check-out"] = time.mktime(tuple(search_info["check-out"]))
+    search_info["check-in"] = calendar.timegm(tuple(search_info["check-in"]))
+    search_info["check-out"] = calendar.timegm(tuple(search_info["check-out"]))
     #Load hotel_list
     with open("hotels.json","r") as inputFile:
         hotel_list = json.load(inputFile)
@@ -143,16 +148,16 @@ def Find_Available_Room(search_info):
     #Find and store available rooms 
     available_rooms = []
     for room in hotel:
-        # #Check for colision
-        # checkin = time.mktime(tuple(room["check-in"]))
-        # checkout = time.mktime(tuple(room["check-out"]))
-        # if search_info["check-in"] > checkin and search_info["check-in"] < checkin:
-        #     continue
-        # elif search_info["check-out"] > checkout and search_info["check-out"] < checkout:
-        #     continue
-        # #No colision
-        # else :
-        available_rooms.append(room)
+        #Check for colision
+        checkin = calendar.timegm(tuple(room["check-in"]))
+        checkout = calendar.timegm(tuple(room["check-out"]))
+        if search_info["check-in"] > checkin and search_info["check-in"] < checkout:
+            continue
+        elif search_info["check-out"] > checkin and search_info["check-out"] < checkout:
+            continue
+        #No colision
+        else :
+            available_rooms.append(room)
     #Return list
     return available_rooms
 
@@ -164,9 +169,13 @@ def Search(client):
     #Start sending list
     if(msg) : Send_hotel_list(client)
     while True:
-        msg = client.recv(BUFSIZE).decode("utf8")
-        if(msg == "quit"):
+        try:
+            msg = client.recv(BUFSIZE).decode("utf8")
+            if(msg == ""):
+                break
+        except:
             break
+
         search_info = json.loads(msg)
         #Find available rooms
         available_rooms = Find_Available_Room(search_info)

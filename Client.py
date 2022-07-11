@@ -385,7 +385,7 @@ def Search():
             valid_day=False
 
         if valid_day:
-            for i in range(6):
+            for i in range(3):
                 check_in_date.append(0)
                 check_out_date.append(0)
             search_info["check-in"] = check_in_date
