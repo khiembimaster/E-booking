@@ -1,3 +1,4 @@
+from email.mime import base
 from socket import *
 from threading import Thread
 from tkinter import *
@@ -5,9 +6,10 @@ from tkinter import ttk
 import tkinter
 import json
 import sys
-import PIL
-
-
+from PIL.Image import Image
+from PIL import Image, ImageTk
+import io
+import base64
 
 def Main_menu():
     """Login or Register"""
@@ -170,7 +172,6 @@ def Get_option():
         button_get_resrvation.grid(row=4,column=1)
 
         break
-    #frame_main_menu.pack()
 
 
 def Show_hotel_list():
@@ -212,57 +213,7 @@ def Show_hotel_list():
         for i in range(len(hotel_name)):
             label_hotel_name=tkinter.Label(sup_frame,text=hotel_name[i])
             label_hotel_name.grid(row=x)
-            j=0
             x[0]+=1
-            while True:
-                label_hotel_name=tkinter.Label(sup_frame,text=hotels_list[hotel_name[i]][j]["name"])
-                label_hotel_name.grid(row=x, column=0,sticky=tkinter.W)
-                x[0]+=1
-                if len(hotels_list[hotel_name[i]][j]["reservation-date"])==0:
-                    label_reservation_date=tkinter.Label(sup_frame,text="Reservation-date: ")
-                    label_reservation_date.grid(row=x,column=0,sticky=tkinter.W)
-                else:
-                    z=hotels_list[hotel_name[i]][j]["reservation-date"]
-                    label_reservation_date=tkinter.Label(sup_frame,text="Reservation-date: "+str(z[0]))
-                    label_reservation_date.grid(row=x,column=0,sticky=tkinter.W)
-                x[0]+=1
-                
-                if len(hotels_list[hotel_name[i]][j]["check-in"])==0:
-                    label_check_in=tkinter.Label(sup_frame,text="Check-in: ")
-                    label_check_in.grid(row=x,column=0,sticky=tkinter.W)
-                else:  
-                    z=hotels_list[hotel_name[i]][j]["check-in"]
-                    label_check_in=tkinter.Label(sup_frame,text="Check-in: "+str(z[0])+", "+str(z[1])+", "+str(z[2]))
-                    label_check_in.grid(row=x,column=0,sticky=tkinter.W)
-                x[0]+=1
-
-                label_type=tkinter.Label(sup_frame,text="Type: "+hotels_list[hotel_name[i]][j]["type"])
-                label_type.grid(row=x, column=0,sticky=tkinter.W)
-                x[0]+=1
-
-                label_description=tkinter.Label(sup_frame,text="Description: "+hotels_list[hotel_name[i]][j]["description"])
-                label_description.grid(row=x,column=0,sticky=tkinter.W)
-                x[0]+=1
-
-                label_price=tkinter.Label(sup_frame,text="Price: "+str(hotels_list[hotel_name[i]][j]["price"]))
-                label_price.grid(row=x,column=0,sticky=tkinter.W)
-                x[0]+=1
-
-                label_note=tkinter.Label(sup_frame,text="Note: "+hotels_list[hotel_name[i]][j]["Note"])
-                label_note.grid(row=x,column=0,sticky=tkinter.W)
-                x[0]+=1
-                # image=ImageTk.PhotoImage(file=hotels_list[hotel_name[i]][j]["image"])
-                # label_image=tkinter.Label(sup_frame,text="Image: ",image=image)
-                # label_image.grid(row=x,column=0,sticky=tkinter.W)
-                # x[0]+=1
-
-                label_blank=tkinter.Label(sup_frame,text=" ")
-                label_blank.grid(row=x)
-                x[0]+=1
-                j+=1
-
-                if j==len(hotels_list[hotel_name[i]]):
-                    break
     else :
         print("Fail")
     
@@ -297,8 +248,7 @@ def Search():
 
     hotels_list_str = ''.join(fragments)
     hotels_list = json.loads(hotels_list_str)
-    # client_socket.send(bytes("okie","utf8"))
-
+    
     hotel_name=tkinter.StringVar()
 
 
@@ -351,7 +301,7 @@ def Search():
         search_info["hotel_name"]=hotel_name.get()
         valid_day=True
         check_in_date=[e_year_in.get(),e_month_in.get(),e_date_in.get()]
-        if check_in_date[0].isdecimal and check_in_date[1].isdecimal and check_in_date[2].isdecimal:
+        if check_in_date[0].isdecimal() and check_in_date[1].isdecimal() and check_in_date[2].isdecimal():
             check_in_date=[int(e_year_in.get()),int(e_month_in.get()),int(e_date_in.get())]
             month_30_day=[4,6,9,10]
             if check_in_date[1] in month_30_day:
@@ -368,7 +318,7 @@ def Search():
             valid_day=False
 
         check_out_date=[e_year_out.get(),e_month_out.get(),e_date_out.get()]
-        if check_out_date[0].isdecimal and check_out_date[1].isdecimal and check_out_date[2].isdecimal:
+        if check_out_date[0].isdecimal() and check_out_date[1].isdecimal() and check_out_date[2].isdecimal():
             check_out_date=[int(e_year_out.get()),int(e_month_out.get()),int(e_date_out.get())]
             month_30_day=[4,6,9,10]
             if check_out_date[1] in month_30_day:
@@ -385,7 +335,7 @@ def Search():
             valid_day=False
 
         if valid_day:
-            for i in range(3):
+            for index in range(3):
                 check_in_date.append(0)
                 check_out_date.append(0)
             search_info["check-in"] = check_in_date
@@ -408,7 +358,7 @@ def Search():
                 fragments.append(chunk)
             available_rooms_str = ''.join(fragments)
             available_rooms = json.loads(available_rooms_str)
-            
+                    
             if available_rooms:
                     frame_search.pack_forget()
                     frame_show_list=tkinter.Frame(window)
@@ -429,6 +379,13 @@ def Search():
                     for j in range(len(available_rooms)):
                         label_hotel_name=tkinter.Label(sup_frame,text=available_rooms[j]["name"])
                         label_hotel_name.grid(row=x, column=0,sticky=tkinter.W)
+                        #Image
+                        b = base64.b64decode(available_rooms[j]["image"])
+                        image = Image.open(io.BytesIO(b))
+                        render = ImageTk.PhotoImage(image)
+                        img = tkinter.Label(sup_frame, image=render)
+                        img.image = render
+                        img.grid(row = x, column=1)
                         x[0]+=1
                         if len(available_rooms[j]["reservation-date"])==0:
                             label_reservation_date=tkinter.Label(sup_frame,text="Reservation-date: ")
@@ -462,17 +419,19 @@ def Search():
 
                         label_note=tkinter.Label(sup_frame,text="Note: "+available_rooms[j]["Note"])
                         label_note.grid(row=x,column=0,sticky=tkinter.W)
-                        x[0]+=1
+                        x[0]+=2
 
-                        label_blank=tkinter.Label(sup_frame,text=" ")
-                        label_blank.grid(row=x)
-                        x[0]+=1
-                     
-            # print(available_rooms)
-            # available_rooms["image"]
-        else:
-            frame_search.destroy()
-            Search()
+                        
+
+                    def Return_get_option():
+                        sup_frame.destroy()
+                        frame_show_list.pack_forget()
+                        frame_get_option.pack()
+
+                    button_return=tkinter.Button(sup_frame,text="Return",command=Return_get_option)
+                    button_return.grid(row=x,column=0)
+        
+            
 
     button_search=tkinter.Button(frame_search,text="Search",command=Searching)
     button_search.grid(row=3,column=4)

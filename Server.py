@@ -151,9 +151,9 @@ def Find_Available_Room(search_info):
         #Check for colision
         checkin = calendar.timegm(tuple(room["check-in"]))
         checkout = calendar.timegm(tuple(room["check-out"]))
-        if search_info["check-in"] > checkin and search_info["check-in"] < checkout:
+        if search_info["check-in"] >= checkin and search_info["check-in"] <= checkout:
             continue
-        elif search_info["check-out"] > checkin and search_info["check-out"] < checkout:
+        elif search_info["check-out"] >= checkin and search_info["check-out"] <= checkout:
             continue
         #No colision
         else :
@@ -168,27 +168,24 @@ def Search(client):
     msg = client.recv(BUFSIZE).decode("utf8")
     #Start sending list
     if(msg) : Send_hotel_list(client)
-    while True:
-        try:
-            msg = client.recv(BUFSIZE).decode("utf8")
-            if(msg == ""):
-                break
-        except:
-            break
-
-        search_info = json.loads(msg)
-        #Find available rooms
-        available_rooms = Find_Available_Room(search_info)
-        #Load image to dictionary
-        for room in available_rooms:
-            with open(room["image"], "rb") as room_image:
-                bOject = base64.b64encode(room_image.read())
-                room["image"] = bOject.decode("utf8") 
-                # print(room["image"])
-        #Send available rooms list to server
-        available_rooms_str = json.dumps(available_rooms)
-        msg = client.recv(BUFSIZE)
-        if(msg): client.sendall(bytes(available_rooms_str,"utf8"))
+    try:
+        msg = client.recv(BUFSIZE).decode("utf8")
+    except:
+        return
+        
+    search_info = json.loads(msg)
+    #Find available rooms
+    available_rooms = Find_Available_Room(search_info)
+    #Load image to dictionary
+    for room in available_rooms:
+        with open(room["image"], "rb") as room_image:
+            bOject = base64.b64encode(room_image.read())
+            room["image"] = bOject.decode("utf8") 
+            # print(room["image"])
+    #Send available rooms list to server
+    available_rooms_str = json.dumps(available_rooms)
+    msg = client.recv(BUFSIZE)
+    if(msg): client.sendall(bytes(available_rooms_str,"utf8"))
 
 def Reservation():
     print("foo")
