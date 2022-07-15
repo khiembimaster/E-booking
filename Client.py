@@ -387,24 +387,7 @@ def Search():
                         img.image = render
                         img.grid(row = x, column=1)
                         x[0]+=1
-                        if len(available_rooms[j]["reservation-date"])==0:
-                            label_reservation_date=tkinter.Label(sup_frame,text="Reservation-date: ")
-                            label_reservation_date.grid(row=x,column=0,sticky=tkinter.W)
-                        else:
-                            z=available_rooms[j]["reservation-date"]
-                            label_reservation_date=tkinter.Label(sup_frame,text="Reservation-date: "+str(z[0]))
-                            label_reservation_date.grid(row=x,column=0,sticky=tkinter.W)
-                        x[0]+=1
                         
-                        if len(available_rooms[j]["check-in"])==0:
-                            label_check_in=tkinter.Label(sup_frame,text="Check-in: ")
-                            label_check_in.grid(row=x,column=0,sticky=tkinter.W)
-                        else:  
-                            z=available_rooms[j]["check-in"]
-                            label_check_in=tkinter.Label(sup_frame,text="Check-in: "+str(z[0])+", "+str(z[1])+", "+str(z[2]))
-                            label_check_in.grid(row=x,column=0,sticky=tkinter.W)
-                        x[0]+=1
-
                         label_type=tkinter.Label(sup_frame,text="Type: "+available_rooms[j]["type"])
                         label_type.grid(row=x, column=0,sticky=tkinter.W)
                         x[0]+=1

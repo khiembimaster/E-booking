@@ -1,4 +1,5 @@
 from audioop import add
+from enum import Flag
 from multiprocessing.connection import Client
 from socket import *
 import threading
@@ -149,15 +150,18 @@ def Find_Available_Room(search_info):
     available_rooms = []
     for room in hotel:
         #Check for colision
-        checkin = calendar.timegm(tuple(room["check-in"]))
-        checkout = calendar.timegm(tuple(room["check-out"]))
-        if search_info["check-in"] >= checkin and search_info["check-in"] <= checkout:
-            continue
-        elif search_info["check-out"] >= checkin and search_info["check-out"] <= checkout:
-            continue
+        flag = True
+        for date in room["dates"]:
+            checkin = calendar.timegm(tuple(date[1]))
+            checkout = calendar.timegm(tuple(date[2]))
+            if search_info["check-in"] >= checkin and search_info["check-in"] <= checkout:
+                flag = False
+                continue
+            elif search_info["check-out"] >= checkin and search_info["check-out"] <= checkout:
+                flag = False
+                continue
         #No colision
-        else :
-            available_rooms.append(room)
+        if(flag): available_rooms.append(room)
     #Return list
     return available_rooms
 
